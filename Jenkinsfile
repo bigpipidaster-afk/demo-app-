@@ -1,13 +1,9 @@
 pipeline {
-    agent any
-    options {
-        timestamps()
-    }
+    agent { label 'linux' }   // фиксируем агент
+    options { timestamps() }
     stages {
         stage('Checkout') {
-            steps {
-                checkout scm
-            }
+            steps { checkout scm }
         }
         stage('Setup') {
             steps {
@@ -17,25 +13,17 @@ pipeline {
             }
         }
         stage('Build') {
-            steps {
-                sh './venv/bin/python -m py_compile app.py'
-            }
+            steps { sh './venv/bin/python -m py_compile app.py' }
         }
         stage('Test') {
-            steps {
-                sh './venv/bin/pytest --junitxml=result.xml'
-            }
+            steps { sh './venv/bin/pytest --junitxml=result.xml' }
         }
     }
     post {
         always {
             junit testResults: 'result.xml', allowEmptyResults: true
         }
-        success {
-            echo 'Сборка прошла успешно'
-        }
-        failure {
-            echo 'Сборка завершилась с ошибкой'
-        }
+        success { echo 'Сборка прошла успешно' }
+        failure { echo 'Сборка завершилась с ошибкой' }
     }
 }
