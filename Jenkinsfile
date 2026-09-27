@@ -1,10 +1,18 @@
 pipeline {
-    agent { label 'linux' }   // фиксируем агент
-    options { timestamps() }
+    agent any
+
+    options {
+        timestamps()
+        skipDefaultCheckout(true)
+    }
+
     stages {
         stage('Checkout') {
-            steps { checkout scm }
+            steps {
+                checkout scm
+            }
         }
+
         stage('Setup') {
             steps {
                 sh 'python3 -m venv venv'
@@ -12,18 +20,35 @@ pipeline {
                 sh './venv/bin/pip install -r requirements.txt'
             }
         }
+
         stage('Build') {
-            steps { sh './venv/bin/python -m py_compile app.py' }
+            steps {
+                sh './venv/bin/python -m py_compile app.py'
+            }
         }
+
         stage('Test') {
-            steps { sh './venv/bin/pytest --junitxml=result.xml' }
+            steps {
+                sh './venv/bin/pytest --junitxml=result.xml'
+            }
         }
     }
+
     post {
         always {
-            junit testResults: 'result.xml', allowEmptyResults: true
+            script {
+                if (fileExists('result.xml')) {
+                    junit 'result.xml'
+                }
+            }
         }
-        success { echo 'Сборка прошла успешно' }
-        failure { echo 'Сборка завершилась с ошибкой' }
+
+        success {
+            echo 'Сборка прошла успешно'
+        }
+
+        failure {
+            echo 'Сборка завершилась с ошибкой'
+        }
     }
 }
