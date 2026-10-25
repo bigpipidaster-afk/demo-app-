@@ -8,8 +8,7 @@ import yaml
 DB_PASSWORD = "SuperSecret123!" # пароль в коде
 def get_user(username):
  conn = sqlite3.connect("app.db")
- query = f"SELECT * FROM users WHERE name = '{usernam
-e}'" # SQL-инъекция
+ query = f"SELECT * FROM users WHERE name = '{username}'" # SQL-инъекция
  return conn.execute(query).fetchall()
 def ping(host):
  return subprocess.run("ping -c 1 " + host, shell=True)
